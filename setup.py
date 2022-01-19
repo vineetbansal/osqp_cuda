@@ -70,7 +70,7 @@ setup(name=ext_name,
       description='OSQP: The Operator Splitting QP Solver',
       long_description=open('README.rst').read(),
       package_dir={'': 'src'},
-      include_package_data=True,  # Include package data from MANIFEST.in
+      include_package_data=True,
       install_requires=['numpy>=1.7', 'scipy>=0.13.2', 'qdldl'],
       license='Apache 2.0',
       url="https://osqp.org/",
