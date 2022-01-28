@@ -1,4 +1,4 @@
-name: Build MKL
+name: Build CUDA
 
 on: [push, pull_request]
 
@@ -31,27 +31,6 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Build MKL wheels
-      uses: pypa/cibuildwheel@v2.3.1
-      with:
-        output-dir: wheelhouse
-      env:
-        CIBW_BUILD: cp38-*
-        CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-        CIBW_TEST_REQUIRES: pytest osqp1 mkl mkl-devel
-
-        CIBW_ENVIRONMENT_LINUX: OSQP_ALGEBRA=mkl MKL_ROOT=/opt/intel/oneapi/mkl/latest
-        CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare_build_environment_linux_mkl.sh
-        CIBW_TEST_COMMAND_LINUX: "OSQP_ALGEBRA=mkl LD_PRELOAD=$(dirname `which python`)/../lib/libmkl_core.so.2:$(dirname `which python`)/../lib/libmkl_sequential.so.2 pytest -s $(python -c \"import osqp; print(osqp.__path__[0])\")/tests"
-        
-        CIBW_ENVIRONMENT_MACOS: OSQP_ALGEBRA=mkl MKL_ROOT=/opt/intel/oneapi/mkl/latest
-        CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare_build_environment_macos_mkl.sh
-       
-        CIBW_ENVIRONMENT_WINDOWS: OSQP_ALGEBRA=mkl MKL_ROOT="C:/Program Files (x86)/Intel/oneAPI/mkl/latest" MKL_DIR="C:/Program Files (x86)/Intel/oneAPI/mkl/latest/lib/cmake/mkl"
-        CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare_build_environment_windows_mkl.sh
-        CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair {wheel} --wheel-dir {dest_dir} --no-mangle-all --add-path \"C:/Program Files (x86)/Intel/oneAPI/mkl/latest/redist/intel64\" --add-dll \"mkl_sequential.2.dll;mkl_def.2.dll\""
-        CIBW_TEST_COMMAND_WINDOWS: "bash -c \"OSQP_ALGEBRA=mkl pytest -s $(python -c 'import osqp; print(osqp.__path__[0])')/tests\""
-
     - name: Build CUDA wheels
       uses: pypa/cibuildwheel@v2.3.1
       with:
@@ -73,11 +52,6 @@ jobs:
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare_build_environment_windows_cuda.sh
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: ""
         CIBW_TEST_COMMAND_WINDOWS: "bash -c \"OSQP_ALGEBRA=cuda python -c 'from osqp import default_algebra; assert(default_algebra()==\"cuda\")'\""
-
-    - name: Build source
-      if: startsWith(matrix.os, 'ubuntu')
-      run: |
-        python setup.py sdist --dist-dir=wheelhouse
 
     - name: Release to pypi
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
