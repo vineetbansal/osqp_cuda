@@ -30,6 +30,7 @@ class CmdCMakeBuild(build_ext):
         build_args = ['--config', cfg]
 
         if system() == "Windows":
+            cmake_args += ['-G', 'Visual Studio 16 2019']
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
             if sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
@@ -44,9 +45,11 @@ class CmdCMakeBuild(build_ext):
 
         _ext_name = ext.name.split('.')[-1]
         cmake_args.extend([f'-DOSQP_EXT_MODULE_NAME={_ext_name}'])
+        if ext.cmake_args is not None:
+            cmake_args.extend(ext.cmake_args)
 
         # What variables from the environment do we wish to pass on to cmake as variables?
-        cmake_env_vars = ('CMAKE_CUDA_COMPILER', 'CUDA_TOOLKIT_ROOT_DIR', 'CUDA_PATH', 'CUDACXX', 'CudaToolkitDir')
+        cmake_env_vars = ('CMAKE_CUDA_COMPILER', 'CUDA_TOOLKIT_ROOT_DIR', 'MKL_DIR', 'MKL_ROOT')
         for cmake_env_var in cmake_env_vars:
             cmake_var = os.environ.get(cmake_env_var)
             if cmake_var:
@@ -54,12 +57,12 @@ class CmdCMakeBuild(build_ext):
 
         if ext.cmake_args is not None:
             cmake_args.extend(ext.cmake_args)
-
+            
         check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp)
         check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 
-algebra = os.environ.get('OSQP_ALGEBRA', 'cuda')
+algebra = os.environ.get('OSQP_ALGEBRA', 'default')
 assert algebra in ('default', 'mkl', 'cuda')
 ext_name = f'osqp_{algebra}'
 ext_module = CMakeExtension(ext_name, cmake_args=[f'-DALGEBRA={algebra}'])
@@ -70,8 +73,8 @@ setup(name=ext_name,
       description='OSQP: The Operator Splitting QP Solver',
       long_description=open('README.rst').read(),
       package_dir={'': 'src'},
-      include_package_data=True,
-      install_requires=['numpy>=1.7', 'scipy>=0.13.2', 'qdldl'],
+      include_package_data=True,  # Include package data from MANIFEST.in
+      install_requires=['numpy>=1.7', 'scipy>=0.13.2', 'qdldl', 'osqp1>=0.7'],
       license='Apache 2.0',
       url="https://osqp.org/",
       cmdclass={'build_ext': CmdCMakeBuild},
