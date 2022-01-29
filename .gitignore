@@ -123,3 +123,6 @@ ENV/
 .cquery_cached_index/
 pip-wheel-metadata/
 scratch/
+
+# setuptools-scm managed version file
+src/osqp/_version.py
