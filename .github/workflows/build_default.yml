@@ -36,10 +36,10 @@ jobs:
       with:
         output-dir: wheelhouse
       env:
-        CIBW_BUILD: cp3*
+        CIBW_BUILD: cp38-*
         CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
         CIBW_TEST_REQUIRES: pytest
-        CIBW_TEST_COMMAND: "pytest -s {project}/src/osqp/tests"
+        CIBW_TEST_COMMAND: "OSQP_ALGEBRA=default pytest -s {project}/src/osqp/tests"
 
     - name: Build source
       if: startsWith(matrix.os, 'ubuntu')

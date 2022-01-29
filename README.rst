@@ -32,4 +32,3 @@ The interface is documented `here <https://osqp.org/>`__.
 Packaging
 ---------
 This repository performs the tests and builds the pypi wheels. Conda packages are on `conda-forge <https://github.com/conda-forge/osqp-feedstock>`__.
-

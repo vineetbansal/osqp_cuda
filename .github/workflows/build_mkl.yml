@@ -38,11 +38,11 @@ jobs:
       env:
         CIBW_BUILD: cp38-*
         CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-        CIBW_TEST_REQUIRES: pytest osqp1 mkl mkl-devel
+        CIBW_TEST_REQUIRES: pytest mkl mkl-devel
 
         CIBW_ENVIRONMENT_LINUX: OSQP_ALGEBRA=mkl MKL_ROOT=/opt/intel/oneapi/mkl/latest
         CIBW_BEFORE_ALL_LINUX: bash .github/workflows/prepare_build_environment_linux_mkl.sh
-        CIBW_TEST_COMMAND_LINUX: "OSQP_ALGEBRA=mkl LD_PRELOAD=$(dirname `which python`)/../lib/libmkl_core.so.2:$(dirname `which python`)/../lib/libmkl_sequential.so.2 pytest -s $(python -c \"import osqp; print(osqp.__path__[0])\")/tests"
+        CIBW_TEST_COMMAND_LINUX: "OSQP_ALGEBRA=mkl LD_PRELOAD=$(dirname `which python`)/../lib/libmkl_core.so.2:$(dirname `which python`)/../lib/libmkl_sequential.so.2 pytest -s {project}/src/osqp/tests"
         
         CIBW_ENVIRONMENT_MACOS: OSQP_ALGEBRA=mkl MKL_ROOT=/opt/intel/oneapi/mkl/latest
         CIBW_BEFORE_ALL_MACOS: bash .github/workflows/prepare_build_environment_macos_mkl.sh
@@ -50,7 +50,7 @@ jobs:
         CIBW_ENVIRONMENT_WINDOWS: OSQP_ALGEBRA=mkl MKL_ROOT="C:/Program Files (x86)/Intel/oneAPI/mkl/latest" MKL_DIR="C:/Program Files (x86)/Intel/oneAPI/mkl/latest/lib/cmake/mkl"
         CIBW_BEFORE_ALL_WINDOWS: bash .github/workflows/prepare_build_environment_windows_mkl.sh
         CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair {wheel} --wheel-dir {dest_dir} --no-mangle-all --add-path \"C:/Program Files (x86)/Intel/oneAPI/mkl/latest/redist/intel64\" --add-dll \"mkl_sequential.2.dll;mkl_def.2.dll\""
-        CIBW_TEST_COMMAND_WINDOWS: "bash -c \"OSQP_ALGEBRA=mkl pytest -s $(python -c 'import osqp; print(osqp.__path__[0])')/tests\""
+        CIBW_TEST_COMMAND_WINDOWS: "bash -c \"OSQP_ALGEBRA=mkl pytest -s {project}/src/osqp/tests"
 
     - name: Release to pypi
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
