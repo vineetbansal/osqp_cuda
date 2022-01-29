@@ -22,7 +22,7 @@ _ALGEBRA_MODULES = {
 OSQP_ALGEBRA = os.environ.get('OSQP_ALGEBRA')      # If envvar is set, that algebra is used by default
 
 
-#@functools.lru_cache(maxsize=4)
+@functools.lru_cache(maxsize=4)
 def algebra_available(algebra):
     assert algebra in _ALGEBRAS, f'Unknown algebra {algebra}'
     module = _ALGEBRA_MODULES[algebra]
@@ -35,12 +35,12 @@ def algebra_available(algebra):
         return True
 
 
-#@functools.lru_cache(maxsize=1)
+@functools.lru_cache(maxsize=1)
 def algebras_available():
     return [algebra for algebra in _ALGEBRAS if algebra_available(algebra)]
 
 
-#@functools.lru_cache(maxsize=1)
+@functools.lru_cache(maxsize=1)
 def default_algebra():
     if OSQP_ALGEBRA is not None:
         return OSQP_ALGEBRA
